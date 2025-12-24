@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function cobrancas()
+    {
+        return $this->hasMany(Cobranca::class, 'vendedor_id');
+    }
+
+    public function notificacoes()
+    {
+        return $this->hasMany(NotificacaoPagamento::class, 'vendedor_id');
+    }
 }

@@ -7,19 +7,137 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## Sistema de Notificações de Pagamento
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Sistema desenvolvido em Laravel que permite a um vendedor emitir lembretes de pagamento para seus clientes, selecionando o canal de notificação desejado (e-mail ou SMS) para cada cobrança.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Funcionalidades
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- ✅ Seleção de canal de notificação (E-mail ou SMS)
+- ✅ Listagem de cobranças pendentes
+- ✅ Histórico de notificações enviadas
+- ✅ Processamento de notificações em fila (background jobs)
+- ✅ API REST para integração
+- ✅ Interface web moderna com Tailwind CSS
+
+### Estrutura do Banco de Dados
+
+- **users** (Vendedores)
+- **clientes** (Clientes)
+- **cobrancas** (Cobranças/Faturas)
+- **notificacoes_pagamento** (Histórico de notificações)
+
+### Instalação e Configuração
+
+1. **Clone o repositório e instale as dependências:**
+```bash
+composer install
+npm install
+```
+
+2. **Configure o arquivo .env:**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+3. **Configure o banco de dados no .env:**
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nome_do_banco
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
+
+4. **Execute as migrations e seeders:**
+```bash
+php artisan migrate:fresh --seed
+```
+
+5. **Compile os assets:**
+```bash
+npm run dev
+# ou para produção:
+npm run build
+```
+
+### Comandos Principais
+
+**Iniciar o servidor Laravel:**
+```bash
+php artisan serve
+```
+
+**Processar a fila de jobs:**
+
+Para desenvolvimento (recomendado - não precisa parar e rodar de novo):
+```bash
+php artisan queue:listen --queue=notificacoes --tries=3
+```
+
+Para produção:
+```bash
+php artisan queue:work --queue=notificacoes --tries=3
+```
+
+**Ou usar o comando dev que inicia tudo:**
+```bash
+composer dev
+```
+
+**Nota:** O comando `queue:listen` é melhor para desenvolvimento pois monitora mudanças no código e reinicia automaticamente. O `queue:work` é mais eficiente para produção.
+
+### Uso da API
+
+**Endpoint:** `POST /api/notificacoes`
+
+**Exemplo de requisição (curl):**
+```bash
+curl -X POST http://localhost:8000/api/notificacoes \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -d '{
+    "cobranca_id": 1,
+    "canal": "sms"
+  }'
+```
+
+**Resposta de sucesso:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "cobranca_id": 1,
+    "canal": "sms",
+    "status": "pendente",
+    "created_at": "2024-12-24T12:00:00.000000Z"
+  }
+}
+```
+
+### Rotas Web
+
+- `/cobrancas` - Lista de cobranças pendentes
+- `/cobrancas/{id}/notificar` - Criar notificação (POST)
+- `/notificacoes` - Histórico de notificações
+
+### Observações
+
+- As notificações são processadas em segundo plano através de filas
+- Os serviços de e-mail e SMS são simulados (fazem log no arquivo de log)
+- Em produção, substitua `ServicoEmail` e `ServicoSMS` por implementações reais
+- O driver de fila padrão é `database` (configurado em `config/queue.php`)
+
+### Tecnologias Utilizadas
+
+- PHP 8.2+
+- Laravel 12
+- MySQL
+- Tailwind CSS
+- Vite
 
 ## Learning Laravel
 
